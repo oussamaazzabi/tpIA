@@ -1,0 +1,84 @@
+//code arduino
+#include <Keypad.h>
+#include <Servo.h>
+Servo myservo;
+
+
+
+const byte ROWS = 4; //four rows
+const byte COLS = 3; //three columns
+int led = 13;
+int buz =2;
+int sensor = 12;              // capteur relié à la pin 2
+int state = LOW;             // aucun mouvement par defaut
+int val = 0;  
+char keys[ROWS][COLS] = {
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
+};
+byte rowPins[ROWS] = {11, 10, 9, 8}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {7, 6, 5}; //connect to the column pinouts of the keypad
+
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(12,OUTPUT);
+  pinMode(13,OUTPUT);
+  myservo.attach(3);
+  myservo.write(0); 
+  pinMode(sensor, INPUT);    // pin 2 en entrée
+  pinMode(buz, OUTPUT);      // pin 7 en sortie
+  Serial.begin(9600);
+}
+  
+void loop(){
+  char key = keypad.getKey();
+  
+  if (key)
+  {
+    Serial.println(key);
+  }
+  
+  if (key =='1')
+  {
+   digitalWrite(13, HIGH);
+   myservo.write(90); 
+   delay(3000);
+    myservo.write(0); 
+  }
+  
+
+  
+  
+ if (key =='*')
+  {
+   digitalWrite(13, LOW);
+   myservo.write(0); 
+  }
+      val = digitalRead(sensor);
+    
+  if (val == HIGH) {           
+    digitalWrite(led, HIGH);  
+    digitalWrite(buz, LOW);   
+    delay(100);               
+    
+    if (state == LOW) {
+      Serial.println("Attention mouvement!"); 
+      state = HIGH;       
+    }
+  } 
+  else {
+      digitalWrite(led, LOW); 
+      digitalWrite(buz, HIGH);
+      delay(200);              
+      
+      if (state == HIGH){
+        Serial.println(" Aucun mouvement");
+        state = LOW;       
+    }
+  }
+}
